@@ -6,7 +6,7 @@
 
 {% block body %}
 <div class="container">
-    <h1>Про нас</h1>
+    <h1 class="fs-1 text-muted default_cursor_cs">Усі пости</h1>
 
     {% if articles|length > 0 %}
 
@@ -18,11 +18,11 @@
             <a href="/post/{{ el.id }}/del" class="btn btn-danger">Видалити</a>
             <a href="/post/{{ el.id }}/update" class="btn btn-success">Редагувати</a>
             <a href="/post/{{ el.id }}" class="btn btn-warning">Деталі</a>
+            <a href="/post/{{ el.id }}/comented" class="btn btn-info">Коментувати</a>
         </div>
         {% endfor %}
-
     {% else %}
-        <p>У вас ще немає статтів</p>
+        <p class="fs-4 text-muted default_cursor_cs">У вас ще немає статтів</p>
     {% endif %}
 </div>
 {% endblock %}
