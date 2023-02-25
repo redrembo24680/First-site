@@ -18,6 +18,33 @@ class Article(db.Model):
         return '<Article %r>' % self.id
 
 
+class Coment(db.Model):
+    com_id = db.Column(db.Integer, primary_key=True)
+    com_text = db.Column(db.Text, nullable=False)
+    com_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Coment %r>' % self.com_id
+
+
+class Coment_post(db.Model):
+    com_post_id = db.Column(db.Integer, primary_key=True)
+    com_post_text = db.Column(db.Text, nullable=False)
+    com_post_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Coment_post %r>' % self.com_post_id
+
+
+@app.route('/register')
+def register():
+    return render_template("register.html")
+
+@app.route("/b")
+def back():
+    return render_template('background.html')
+
+
 @app.route('/')
 @app.route('/home')
 def index():
@@ -33,6 +60,12 @@ def about():
 def posts():
     articles = Article.query.order_by(Article.date.desc()).all()
     return render_template("posts.html", articles=articles)
+
+
+@app.route('/reviews')
+def coments():
+    coment = Coment.query.order_by(Coment.com_date.desc()).all()
+    return render_template("reviews.html", coment=coment)
 
 
 @app.route('/post/<int:id>')
@@ -51,7 +84,20 @@ def post_delete(id):
         return redirect('/posts')
 
     except:
-        return "При ведаленні винекла помилка"
+        return "При видаленні виникла помилка"
+
+
+@app.route('/reviews/<int:com_id>/delete')
+def coment_delete(com_id):
+    coment = Coment.query.get_or_404(com_id)
+
+    try:
+        db.session.delete(coment)
+        db.session.commit()
+        return redirect('/reviews')
+
+    except:
+        return "При видаленні виникла помилка"
 
 
 @app.route('/post/<int:id>/update', methods=['POST', 'GET'])
@@ -72,6 +118,21 @@ def post_update(id):
         return render_template("post_update.html", article=article)
 
 
+@app.route('/create_review', methods=['POST', 'GET'])
+def create_coment():
+    if request.method == 'POST':
+        com_text = request.form['com_text']
+
+        comants = Coment(com_text=com_text)
+
+        db.session.add(comants)
+        db.session.commit()
+        return redirect('/reviews')
+
+    else:
+        return render_template("create_reviews.html")
+
+
 @app.route('/create_article', methods=['POST', 'GET'])
 def create_article():
     if request.method == 'POST':
@@ -81,13 +142,10 @@ def create_article():
 
         article = Article(title=title, intro=intro, text=text)
 
-        try:
-            db.session.add(article)
-            db.session.commit()
-            return redirect('/posts')
+        db.session.add(article)
+        db.session.commit()
+        return redirect('/posts')
 
-        except:
-            return 'При додаванні статті виникла помилка'
     else:
         return render_template("create_article.html")
 
